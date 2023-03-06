@@ -1,2 +1,30 @@
 # PentagoMiniMax
-Simple CLI Pentago game that utiltizes the Mini Max Algorithm after 16 moves
+Simple CLI Pentago game that utilizes the Mini Max Algorithm after 16 moves
+
+# The Game Board
+A simple 6x6 board that is subdivided into quadrants (1-4)
+      Quadrant 1:                          Quadrant 2:
+|       |       |       |            |       |       |       |
+|   1   |   2   |   3   |            |   4   |    5  |   6   |
+|       |       |       |            |       |       |       |
+-------------------------            -------------------------
+|       |       |       |            |       |       |       |
+|   7   |   8   |   9   |            |   10  |  11   |   12  |
+|       |       |       |            |       |       |       |
+-------------------------            -------------------------
+|       |       |       |            |       |       |       |
+|  13   |  14   |   15  |            |  16   |  17   |   18  |
+|       |       |       |            |       |       |       |
+
+      Quadrant 3:                          Quadrant 4:
+|        |        |        |         |        |        |        |
+|   19   |   20   |   21   |         |   22   |    23  |   24   |
+|        |        |        |         |        |        |        |
+----------------------------         ----------------------------
+|        |        |        |         |        |        |        |
+|   25   |   26   |   27   |         |   28   |  29    |    30  |
+|        |        |        |         |        |        |        |
+----------------------------         ----------------------------
+|        |        |        |         |        |        |        |
+|  31    |  32    |   33   |         |  34    |  35    |   36   |
+|        |        |        |         |        |        |        |
