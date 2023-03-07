@@ -19,6 +19,17 @@ public class PentagoUtils {
         quadrantRotation(board, coordinates.get(2), coordinates.get(3));
     }
 
+    public static void transformBoard(int[][] board, int player, ArrayList<Integer> coordinates) {
+        int marbleToWrite = player == 0 ? 1 : 2;
+        board[coordinates.get(0)][coordinates.get(1)] = marbleToWrite;
+        quadrantRotation(board, coordinates.get(2), coordinates.get(3));
+    }
+
+    public static void reverseTransformBoard(int[][] board, ArrayList<Integer> coordinates) {
+        quadrantRotation(board, coordinates.get(2), coordinates.get(3) == 0 ? 1 : 0);
+        board[coordinates.get(0)][coordinates.get(1)] = 0;
+    }
+
     public static void quadrantRotation(int[][] board, int quadrant, int rotation) {
         if (rotation == 0) {
             clockWiseRotation(board, quadrant);
@@ -29,7 +40,7 @@ public class PentagoUtils {
 
     public static void clockWiseRotation(int[][] board, int quad) {
         switch (quad) {
-            case 1 -> {
+            case 0 -> {
                 int[] quadrantOneValues =
                         {board[0][0], board[0][1], board[0][2],
                                 board[1][0], board[1][2], board[2][0],
@@ -44,7 +55,7 @@ public class PentagoUtils {
                 board[2][2] = quadrantOneValues[5];
                 board[2][1] = quadrantOneValues[3];
             }
-            case 2 -> {
+            case 1 -> {
                 int[] quadrantTwoValues =
                         {board[0][3], board[0][4], board[0][5],
                                 board[1][3], board[1][5],
@@ -59,7 +70,7 @@ public class PentagoUtils {
                 board[2][4] = quadrantTwoValues[5];
                 board[2][5] = quadrantTwoValues[3];
             }
-            case 3 -> {
+            case 2 -> {
                 int[] quadrantThreeValues =
                         {board[3][0], board[3][1], board[3][2],
                                 board[4][0], board[4][2],
@@ -74,7 +85,7 @@ public class PentagoUtils {
                 board[5][2] = quadrantThreeValues[5];
                 board[5][1] = quadrantThreeValues[3];
             }
-            case 4 -> {
+            case 3 -> {
                 int[] quadrantFourValues =
                         {board[3][3], board[3][4], board[3][5],
                                 board[4][3], board[4][5],
@@ -94,7 +105,7 @@ public class PentagoUtils {
 
     public static void counterClockWiseRotation(int[][] board, int quad) {
         switch (quad) {
-            case 1 -> {
+            case 0 -> {
                 int[] quadrantOneValues =
                         {board[2][0], board[1][0], board[0][0],
                                 board[2][1], board[0][1],
@@ -111,7 +122,7 @@ public class PentagoUtils {
                 board[2][2] = quadrantOneValues[6];
                 board[2][1] = quadrantOneValues[7];
             }
-            case 2 -> {
+            case 1 -> {
                 int[] quadrantTwoValues =
                         {board[2][3], board[1][3], board[0][3],
                                 board[2][4], board[0][4],
@@ -128,7 +139,7 @@ public class PentagoUtils {
                 board[2][4] = quadrantTwoValues[6];
                 board[2][5] = quadrantTwoValues[7];
             }
-            case 3 -> {
+            case 2 -> {
                 int[] quadrantThreeValues =
                         {board[5][0], board[4][0], board[3][0],
                                 board[5][1], board[3][1],
@@ -145,7 +156,7 @@ public class PentagoUtils {
                 board[5][2] = quadrantThreeValues[6];
                 board[5][1] = quadrantThreeValues[7];
             }
-            case 4 -> {
+            case 3 -> {
                 int[] quadrantFourValues =
                         {board[5][3], board[4][3], board[3][3],
                                 board[5][4], board[3][4],
@@ -165,6 +176,26 @@ public class PentagoUtils {
 
         }
 
+    }
+
+    public static boolean checkWin(int[][] board) {
+        // Check rows for a win
+        for (int[] values : board) {
+            if (values[0] == values[1] && values[1] == values[2] && values[2] == values[3] && values[3] == values[4]) {
+                return false;
+            }
+        }
+        // Check columns for a win
+        for (int j = 0; j < board[0].length; j++) {
+            if (board[0][j] == board[1][j] && board[1][j] == board[2][j] && board[2][j] == board[3][j] && board[3][j] == board[4][j]) {
+                return false;
+            }
+        }
+        // Check diagonals for a win
+        if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] == board[3][3] && board[3][3] == board[4][4]) {
+            return false;
+        }
+        return board[0][4] != board[1][3] || board[1][3] != board[2][2] || board[2][2] != board[3][1] || board[3][1] != board[4][0];
     }
 
 }
