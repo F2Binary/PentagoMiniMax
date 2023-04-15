@@ -17,7 +17,9 @@ public class Pentago {
         currentPlayer = PlayerState.BLACK_PIECE;
         mapOfCompletedMoves = new HashMap<>();
     }
-
+    public int[][] getBoard(){
+        return board;
+    }
     public void miniMax() {
         int s = AlphaBetaPruning.launchMiniMax(board,ALGORITHM_DEPTH,currentPlayer.playerToInt(),alpha,beta);
     }
@@ -28,9 +30,5 @@ public class Pentago {
             currentPlayer = i % 2 != 0 ? PlayerState.WHITE_PIECE : PlayerState.BLACK_PIECE;
             board = boardCoordinates.doRandom(board, String.valueOf(currentPlayer), mapOfCompletedMoves);
         }
-    }
-    public void printBoard(){
-        for (int[] rows : board)
-            System.out.println(Arrays.toString(rows));
     }
 }

@@ -1,6 +1,7 @@
 package src.comp_620.pentago;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PentagoUtils {
 
@@ -197,5 +198,8 @@ public class PentagoUtils {
         }
         return board[0][4] != board[1][3] || board[1][3] != board[2][2] || board[2][2] != board[3][1] || board[3][1] != board[4][0];
     }
-
+    public static void printBoard(int[][] board){
+        for (int[] rows : board)
+            System.out.println(Arrays.toString(rows));
+    }
 }

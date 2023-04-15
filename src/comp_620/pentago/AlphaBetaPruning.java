@@ -18,7 +18,6 @@ public class AlphaBetaPruning {
         int bestScore;
         if (maximizingPlayer) {
             bestScore = Integer.MIN_VALUE;
-
             for (ArrayList<Integer> move : moves) {
                 // Make the move
                 int [][] tempBoard = makeMove(board, player, move);
@@ -109,7 +108,6 @@ public class AlphaBetaPruning {
 
     private static int evaluate(int[][] board) {
         int score = 0;
-
         // Evaluate rows and columns
         for (int i = 0; i < BOARD_SIZE; i++) {
             int rowSum = 0;
@@ -138,6 +136,7 @@ public class AlphaBetaPruning {
     }
 
     private static int getScore(int sum) {
+        //Technically 10 is the maximum number one can get in this case (because we define 2 and 1)
         switch (sum) {
             case 5 -> {
                 return 100000;
