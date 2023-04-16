@@ -2,64 +2,131 @@ package src.comp_620.pentago;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class AlphaBetaPruning {
     static final int BOARD_SIZE = 5;
+    private int color;
+    private int maxDepth;
+    private Random rand;
+    /**
+     *
+     */
+    public AlphaBetaPruning(int maxDepth, int color) {
+        this.color = color;
+        this.maxDepth = maxDepth;
+        rand = new Random();
+    }
 
-    public static int launchMiniMax(int[][] board, int depth, int player, int alpha, int beta) {
-        boolean maximizingPlayer = player == 0;
-        // Check if the game is over or maximum depth has been reached
-        if (depth == 0 || PentagoUtils.checkWin(board)) {
-            return evaluate(board);
-        }
-        // Get all possible moves
-        List<ArrayList<Integer>> moves = generateMoves(board);
+    private float maxValue(int[][] b, List<ArrayList<Integer>> state, float alpha, float beta, int depth) {
+        if(depth > maxDepth)
+            return eval(b);
 
-        int bestScore;
-        if (maximizingPlayer) {
-            bestScore = Integer.MIN_VALUE;
-            for (ArrayList<Integer> move : moves) {
-                // Make the move
-                int [][] tempBoard = makeMove(board, player, move);
+        List<ArrayList<Integer>> moves = generateMoves(makeMove(b,color, state));
+        if(moves.size() == 0)
+            return Float.NEGATIVE_INFINITY;
 
-                // Calculate the score
-                int score = launchMiniMax(tempBoard, depth - 1, player, alpha, beta);
-                bestScore = Math.max(bestScore, score);
-
-                // Undo the move
-                undoMove(tempBoard,move);
-
-                // Alpha-beta pruning
-                alpha = Math.max(alpha, bestScore);
-                if (beta <= alpha) {
-                    break;
-                }
+        for (ArrayList<Integer> move : moves) {
+            state.add(move);
+            float tmp = minValue(b, state, alpha, beta, depth + 1);
+            state.remove(state.lastIndexOf(move));
+            if (tmp > alpha) {
+                alpha = tmp;
             }
 
-        } else {
-            bestScore = Integer.MAX_VALUE;
+            if (beta <= alpha)
+                break;
+        }
 
-            for (ArrayList<Integer> move : moves) {
-                // Make the move
-                int [][] tempBoard = makeMove(board, player, move);
-                //makeMove(move.position, move.quadrant, move.isClockwise);
+        return alpha;
+    }
 
-                // Calculate the score
-                int score = launchMiniMax(board, depth - 1, player, alpha, beta);
-                bestScore = Math.min(bestScore, score);
+    private float minValue(int[][] b, List<ArrayList<Integer>> state, float alpha, float beta, int depth) {
+        if(depth > maxDepth)
+            return eval(b);
 
-                // Undo the move
-                undoMove(tempBoard,move);
+        List<ArrayList<Integer>> moves = generateMoves(makeMove(b,color, state));
+        if(moves.size() == 0)
+            return Float.POSITIVE_INFINITY;
 
-                // Alpha-beta pruning
-                beta = Math.min(beta, bestScore);
-                if (beta <= alpha) {
-                    break;
-                }
+        for (ArrayList<Integer> move : moves) {
+            state.add(move);
+            float tmp = maxValue(b, state, alpha, beta, depth + 1);
+            state.remove(state.lastIndexOf(move));
+            if (tmp < beta) {
+                beta = tmp;
             }
 
+            if (beta <= alpha)
+                break;
         }
-        return bestScore;
+
+        return beta;
+    }
+
+    private static int[][] makeMove(int[][] board, int player, List<ArrayList<Integer>> moves) {
+        int[][] newBoard = new int[6][6];
+        for (int i = 0; i < board.length; i++) {
+            System.arraycopy(board[i], 0, newBoard[i], 0, board[i].length);
+        }
+        for(var move : moves){
+            PentagoUtils.transformBoard(board,player, move);
+        }
+        return newBoard;
+    }
+    public ArrayList<Integer> decision(final int[][] b) {
+        // get maximum move
+        final List<ArrayList<Integer>> moves = generateMoves(b);
+        if(moves.size() == 0)
+            return null;
+
+        Vector<Future<Float>> costs = new Vector<>(moves.size());
+        costs.setSize(moves.size());
+
+        ExecutorService exec = Executors.newFixedThreadPool(moves.size());
+        try {
+            for (int i = 0; i < moves.size(); i++) {
+                final ArrayList<Integer> move = moves.get(i);
+                Future<Float> result = exec.submit(() -> {
+                    List<ArrayList<Integer>> state = new ArrayList<>();
+                    state.add(move);
+
+                    return minValue(b, state, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 1);
+                });
+                costs.set(i, result);
+            }
+        } finally {
+            exec.shutdown();
+        }
+        // max
+        int maxi = -1;
+        float max = Float.NEGATIVE_INFINITY;
+        for(int i = 0; i < moves.size(); i++) {
+            float cost;
+            try {
+                cost = costs.get(i).get();
+            } catch (Exception e) {
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored) {
+                }
+                continue;
+            }
+            if(cost >= max) {
+                if(Math.abs(cost-max) < 0.1)
+                    if(rand.nextBoolean())
+                        continue;
+
+                max = cost;
+                maxi = i;
+            }
+        }
+
+        return moves.get(maxi);
     }
 
     private static List<ArrayList<Integer>> generateMoves(int[][] board) {
@@ -94,19 +161,7 @@ public class AlphaBetaPruning {
         return listOfCoordinates;
     }
 
-    private static int[][] makeMove(int[][] board, int player, ArrayList<Integer> move) {
-        int[][] newBoard = new int[6][6];
-        for (int i = 0; i < board.length; i++) {
-            System.arraycopy(board[i], 0, newBoard[i], 0, board[i].length);
-        }
-        PentagoUtils.transformBoard(board,player,move);
-        return newBoard;
-    }
-    private static void undoMove(int[][] board, ArrayList<Integer> move) {
-        PentagoUtils.reverseTransformBoard(board, move);
-    }
-
-    private static int evaluate(int[][] board) {
+    private float eval(int[][] board) {
         int score = 0;
         // Evaluate rows and columns
         for (int i = 0; i < BOARD_SIZE; i++) {

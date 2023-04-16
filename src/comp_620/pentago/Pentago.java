@@ -3,14 +3,13 @@ package src.comp_620.pentago;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.ForkJoinPool;
 
 public class Pentago {
     private int[][] board;
     private PlayerState currentPlayer;
     private HashMap<ArrayList<Integer>, String> mapOfCompletedMoves;
     private final int ALGORITHM_DEPTH = 4;
-    final int alpha = Integer.MIN_VALUE;
-    final int beta = Integer.MAX_VALUE;
 
     public Pentago() {
         board = new int[6][6];
@@ -21,7 +20,8 @@ public class Pentago {
         return board;
     }
     public void miniMax() {
-        int s = AlphaBetaPruning.launchMiniMax(board,ALGORITHM_DEPTH,currentPlayer.playerToInt(),alpha,beta);
+        AlphaBetaPruning state = new AlphaBetaPruning(ALGORITHM_DEPTH, currentPlayer.playerToInt());
+        ArrayList<Integer> bestMove = state.decision(board);
     }
 
     public void generateFirstNMoves() {
