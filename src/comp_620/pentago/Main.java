@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         ArrayList<Long> listOfExecutionTimes = new ArrayList<>();
         BufferedWriter writer = new BufferedWriter(new FileWriter("results.txt"));
+        long start = System.currentTimeMillis();
         for(int i = 0; i< 1000; i++){
             Pentago game = new Pentago();
             System.out.println("Generating the first 16 moves beginning with black marbles");
@@ -23,6 +24,8 @@ public class Main {
             writer.write(totalTime == 0 ? "<error>\n" :((Long)totalTime) + "\n");
         }
         writer.close();
-        listOfExecutionTimes.forEach(System.out::println);
+        long end   = System.currentTimeMillis();
+        System.out.println("Total Execution time is: " + (end - start) + " ms");
+        //listOfExecutionTimes.forEach(System.out::println);
         }
 }
